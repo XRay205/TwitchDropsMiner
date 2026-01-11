@@ -449,6 +449,8 @@ class Twitch:
         self.websocket = WebsocketPool(self)
         # Maintenance task
         self._mnt_task: asyncio.Task[None] | None = None
+        # Inventory refresh task (checks for new drops every 5 minutes)
+        self._inventory_refresh_task: asyncio.Task[None] | None = None
 
     async def get_session(self) -> aiohttp.ClientSession:
         if (session := self._session) is not None:
@@ -494,6 +496,9 @@ class Twitch:
         if self._mnt_task is not None:
             self._mnt_task.cancel()
             self._mnt_task = None
+        if self._inventory_refresh_task is not None:
+            self._inventory_refresh_task.cancel()
+            self._inventory_refresh_task = None
         # stop websocket, close session and save cookies
         await self.websocket.stop(clear_topics=True)
         if self._session is not None:
@@ -611,6 +616,10 @@ class Twitch:
         if self._watching_task is not None:
             self._watching_task.cancel()
         self._watching_task = asyncio.create_task(self._watch_loop())
+        # Start inventory refresh task (checks for new drops every 5 minutes)
+        if self._inventory_refresh_task is not None:
+            self._inventory_refresh_task.cancel()
+        self._inventory_refresh_task = asyncio.create_task(self._inventory_refresh_loop())
         # Add default topics
         self.websocket.add_topics([
             WebsocketTopic("User", "Drops", auth_state.user_id, self.process_drops),
@@ -976,6 +985,16 @@ class Twitch:
         # this triggers a restart of this task every (up to) 60 minutes
         logger.log(CALL, "Maintenance task requests a reload")
         self.change_state(State.INVENTORY_FETCH)
+
+    @task_wrapper(critical=True)
+    async def _inventory_refresh_loop(self) -> None:
+        """
+        Checks for new drops every 5 minutes by triggering an inventory fetch.
+        """
+        while True:
+            await asyncio.sleep(5 * 60)  # 5 minutes in seconds
+            logger.log(CALL, "Inventory refresh task requests a reload")
+            self.change_state(State.INVENTORY_FETCH)
 
     def can_watch(self, channel: Channel) -> bool:
         """
