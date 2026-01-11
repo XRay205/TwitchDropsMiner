@@ -1,8 +1,10 @@
-aiohttp>=3.9,<4.0
-Pillow
-pystray
-PyGObject<3.51; sys_platform == "linux"  # required for better system tray support on Linux
+# Python 3.10+ required
+# Core dependencies
+aiohttp>=3.13,<4.0
+Pillow>=12.0,<13.0
+pystray>=0.19,<1.0
+truststore>=0.10,<1.0
 
-# environment-dependent dependencies
-pywin32; sys_platform == "win32"
-truststore
+# Platform-specific dependencies
+PyGObject>=3.52,<4.0; sys_platform == "linux"  # required for better system tray support on Linux
+pywin32>=308; sys_platform == "win32"  # Windows-specific support

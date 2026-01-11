@@ -150,7 +150,7 @@ AppDir:
     env:
       PATH: '${APPDIR}/usr/bin:${PATH}'
       PYTHONHOME: '${APPDIR}/usr'
-      PYTHONPATH: '${APPDIR}/usr/lib/python3.10/tkinter:${APPDIR}/usr/lib/python3.10/site-packages'
+      PYTHONPATH: '${APPDIR}/usr/lib/python3.11/tkinter:${APPDIR}/usr/lib/python3.11/site-packages'
       APPDIR_LIBRARY_PATH: '${APPDIR}/usr/lib:${APPDIR}/usr/lib/{{ARCH}}-linux-gnu:${APPDIR}/lib/{{ARCH}}-linux-gnu'
       TCL_LIBRARY: '${APPDIR}/usr/share/tcltk/tcl8.6'
       TK_LIBRARY: '${APPDIR}/usr/lib/tcltk/{{ARCH}}-linux-gnu/tk8.6'
